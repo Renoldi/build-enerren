@@ -1,0 +1,16 @@
+generate with command
+    flutter create --org com enerren
+        com domain
+        enerren project name
+
+change version
+    update file config\config.properties
+    run in terminal -> dart run change.dart
+
+build
+    dart run flutter_launcher_icons
+    flutter build apk --debug --no-tree-shake-icons
+    flutter build apk --release --no-tree-shake-icons
+    flutter build appbundle --no-tree-shake-icons
+    flutter pub upgrade --major-versions
+    flutter pub outdated

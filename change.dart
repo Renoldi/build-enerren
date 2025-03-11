@@ -11,15 +11,15 @@ void main() {
   if (packageName == null ||
       buildName == null ||
       buildNumber == null ||
-      appLabel == null) {
+      appLabel == null ||
+      apiMap == null) {
     throw Exception('Required properties are missing in the config file.');
   }
 
   updateMainActivity(packageName);
   updateAppInfoXcconfig(packageName, buildName, buildNumber, appLabel);
-  if (apiMap != null && apiMap.isNotEmpty) {
-    updateAppDelegate(apiMap);
-  }
+  updateAppDelegate(apiMap);
+  updateAndroidManifest(apiMap);
   updatePubspecYaml(buildName, buildNumber);
   stdout.write('Properties read from config file: $properties');
 }
@@ -125,7 +125,13 @@ void updateAppDelegate(String apiMap) {
     );
   }
   var content = file.readAsStringSync();
-  if (content.contains('GMSServices.provideAPIKey')) {
+  if (apiMap.isEmpty) {
+    content = content.replaceAll(
+      RegExp(r'GMSServices.provideAPIKey\(".*?"\)'),
+      '',
+    );
+    content = content.replaceAll(RegExp(r'import GoogleMaps'), '');
+  } else if (content.contains('GMSServices.provideAPIKey')) {
     content = content.replaceAll(
       RegExp(r'GMSServices.provideAPIKey\(".*?"\)'),
       'GMSServices.provideAPIKey("$apiMap")',
@@ -139,6 +145,34 @@ void updateAppDelegate(String apiMap) {
       content = content.replaceFirst(
         'import UIKit',
         'import UIKit\nimport GoogleMaps',
+      );
+    }
+  }
+  file.writeAsStringSync(content);
+}
+
+void updateAndroidManifest(String? apiMap) {
+  final manifestPath = 'android/app/src/main/AndroidManifest.xml';
+  final file = File(manifestPath);
+  if (!file.existsSync()) {
+    throw FileNotFoundException(
+      'AndroidManifest.xml file not found: $manifestPath',
+    );
+  }
+  var content = file.readAsStringSync();
+
+  if (apiMap!.isEmpty) {
+    content = content.replaceAll(
+      RegExp(
+        r'<meta-data android:name="com.google.android.geo.API_KEY" android:value=".*?"\s*/>',
+      ),
+      '',
+    );
+  } else {
+    if (!content.contains('com.google.android.geo.API_KEY')) {
+      content = content.replaceFirst(
+        '</application>',
+        '    <meta-data android:name="com.google.android.geo.API_KEY" android:value="\${flutter.apiMap}" />\n</application>',
       );
     }
   }

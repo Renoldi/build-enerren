@@ -6,17 +6,17 @@ void main() {
   final packageName = properties['flutter.namespace'];
   final buildName = properties['flutter.versionName'];
   final buildNumber = properties['flutter.versionCode'];
-  final appName = properties['flutter.name'];
+  final appLabel = properties['flutter.label'];
   final apiMap = properties['flutter.apiMap'];
   if (packageName == null ||
       buildName == null ||
       buildNumber == null ||
-      appName == null) {
+      appLabel == null) {
     throw Exception('Required properties are missing in the config file.');
   }
 
   updateMainActivity(packageName);
-  updateAppInfoXcconfig(packageName, buildName, buildNumber, appName);
+  updateAppInfoXcconfig(packageName, buildName, buildNumber, appLabel);
   if (apiMap != null && apiMap.isNotEmpty) {
     updateAppDelegate(apiMap);
   }

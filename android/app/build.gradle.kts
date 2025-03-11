@@ -32,7 +32,8 @@ android {
         versionCode = properties["flutter.versionCode"].toString().toInt()
         versionName = properties["flutter.versionName"].toString()
         manifestPlaceholders.putAll(mapOf(
-            "flutter.apiMap" to properties["flutter.apiMap"].toString()
+            "flutter.apiMap" to properties["flutter.apiMap"].toString(),
+            "flutter.label" to properties["flutter.label"].toString(),
         ))
     }
 
